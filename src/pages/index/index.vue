@@ -21,7 +21,24 @@
               <span slot="title">首页</span>
             </template>
           </el-menu-item>
-          <el-submenu index="2">
+          <!-- 左侧动态栏 -->
+          <div v-for="item in userInfo.menus" :key="item.id">
+            <!-- 是目录 -->
+            <el-submenu :index="item.id+''" v-if="item.children">
+              <template slot="title">
+                <i :class="item.icon"></i>
+                <span>{{item.title}}</span>
+              </template>
+              <el-menu-item-group>
+                <el-menu-item :index="i.url" v-for="i in item.children" :key="i.id">{{i.title}}</el-menu-item>
+              </el-menu-item-group>
+            </el-submenu>
+            <!-- 是菜单 -->
+            <el-menu-item v-else :index="item.url">{{item.title}}</el-menu-item>
+          </div>
+
+          <!-- 固定侧边栏 -->
+          <!-- <el-submenu index="2">
             <template slot="title">
               <i class="el-icon-setting"></i>
               <span>系统设置</span>
@@ -45,11 +62,17 @@
               <el-menu-item index="/banner">轮播图管理</el-menu-item>
               <el-menu-item index="/seckill">秒杀活动</el-menu-item>
             </el-menu-item-group>
-          </el-submenu>
+          </el-submenu> -->
+
         </el-menu>
       </el-aside>
       <el-container>
-        <el-header class="header">Header</el-header>
+        <el-header class="header" >
+          <div class="header-con">
+            <span>{{userInfo.username}}</span>
+            <el-button type="danger" @click="logOut()">退出登录</el-button>
+          </div>
+        </el-header>
         <el-main class="main">
           <!-- 面包屑导航 -->
           <el-breadcrumb separator-class="el-icon-arrow-right" v-if="$route.name">
@@ -65,7 +88,28 @@
 </template>
 
 <script>
-export default {};
+import { mapGetters, mapActions } from "vuex";
+export default {
+  props: [],
+  components: {},
+  data() {
+    return {}
+  },
+  computed: {
+    ...mapGetters({
+      userInfo: "userInfo"
+    })
+  },
+  methods: {
+    ...mapActions({
+      changUserInfoAction: "changUserInfoAction"
+    }),
+    logOut(){
+      this.changUserInfoAction({});
+      this.$router.push("/login")
+    }
+  },
+};
 </script>
 
 <style scoped>
@@ -78,6 +122,21 @@ export default {};
 }
 .header {
   background: rgb(228, 164, 194);
+  position: relative;
+}
+.header-con{
+  float: right;
+  cursor: pointer;
+}
+.header-con span{
+  text-align: center;
+  line-height: 60px;
+  font-weight: bold;
+  margin-right: 10px;
+}
+.header-con .el-button{
+  float: right;
+  margin-top: 10px;
 }
 .main {
   background: rgb(239, 243, 242);

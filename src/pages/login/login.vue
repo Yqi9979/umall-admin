@@ -45,6 +45,8 @@ export default {
           successAlert(res.data.msg);
           // res.data.list  用户信息 存起来，供很多组件使用
           this.changUserInfoAction(res.data.list)
+          console.log(this.$store)
+          console.log(this.$store.state.userInfo.menus_url)
           this.$router.push("/");
         } else {
           warningAlert(res.data.msg);

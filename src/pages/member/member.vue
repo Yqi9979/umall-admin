@@ -1,24 +1,49 @@
 <template>
   <div>
-    <h1>{{$route.name}}</h1>
+<!-- 表格组件 -->
+    <!-- list页面触发子传父事件  -->
+    <v-list @edit="edit"></v-list>
+<!-- 添加弹框组件 -->
+    <v-add :info="info" ref="add"></v-add>
+
   </div>
 </template>
 <script>
 import { mapGetters, mapActions } from "vuex";
+import vAdd from './components/add.vue';
+import vList from './components/list.vue';
+
 export default {
   props: [],
-  components: {},
+  components: {
+    vAdd,
+    vList
+  },
   data() {
-    return {};
+    return {
+      // 传递给add的数据
+      info:{
+        // 添加弹框的状态
+        isshow:false,
+      }
+    };
   },
   computed: {
     ...mapGetters({})
   },
   methods: {
-    ...mapActions({})
+    ...mapActions({}),
+    // 点击list的编辑按钮，触发子传父自定义事件，并带一个id
+    edit(uid){
+      // 点击list编辑，弹出编辑弹框
+      this.info.isshow=true;
+      // 给add组件传一个look(uid)函数，并获取一条菜单数据请求
+      this.$refs.add.look(uid)
+    }
   },
   mounted() {}
 };
 </script>
 <style scoped>
+
 </style>

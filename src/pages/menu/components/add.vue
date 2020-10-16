@@ -133,7 +133,7 @@ export default {
           this.reset();
           // 弹框消失
           this.cancel();
-          this.reqListAction();
+          this.reqMenuListAction();
         } else {
           // 添加失败打印
           warningAlert(res.data.msg);

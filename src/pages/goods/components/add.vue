@@ -21,7 +21,7 @@
 
         <el-form-item label="二级分类">
           <el-select v-model="form.second_cateid">
-            <el-option label="请选择" value disabled></el-option>
+            <el-option label="请选择" value="" disabled></el-option>
             <el-option
               v-for="item in secondCateList"
               :key="item.id"
@@ -59,7 +59,7 @@
 
         <el-form-item label="商品规格">
           <el-select v-model="form.specsid" @change="changeSpecs">
-            <el-option label="请选择" value disabled></el-option>
+            <el-option label="请选择" value="" disabled></el-option>
             <el-option
               v-for="item in skuList"
               :key="item.id"
@@ -71,8 +71,13 @@
 
         <el-form-item label="规格属性">
           <el-select v-model="form.specsattr" multiple>
-            <el-option label="请选择" value disabled></el-option>
-            <el-option v-for="item in goodsAttrList" :key="item" :label="item" :value="item"></el-option>
+            <el-option label="请选择" value="" disabled></el-option>
+            <el-option 
+              v-for="item in goodsAttrList" 
+              :key="item" 
+              :label="item" 
+              :value="item"
+            ></el-option>
           </el-select>
         </el-form-item>
 
@@ -150,7 +155,8 @@ export default {
     ...mapActions({
       reqCateListAction: "cate/reqCateListAction",
       reqSkuListAction: "sku/reqSkuListAction",
-      reqGoodsListAction: "goods/reqGoodsListAction"
+      reqGoodsListAction: "goods/reqGoodsListAction",
+      reqGoodsCountAction:"goods/reqGoodsCountAction"
     }),
     // 一级分类
     changeFirst() {
@@ -208,12 +214,23 @@ export default {
     // 重置数据
     reset() {
       this.form = {
-        pid: 0,
-        catename: "",
+        first_cateid: "",
+        second_cateid: "",
+        goodsname: "",
+        price: "",
+        market_price: "",
         img: null,
-        status: 1
+        description: "",
+        specsid: "",
+        specsattr: [], //后端要的 '[]',所以 记得在请求前 转换格式
+        isnew: 1,
+        ishot: 1,
+        status: 1,
       },
       this.imageUrl = "";
+      this.secondCateList="";
+      this.goodsAttrList=""
+
     },
 
     // 点击添加完成
@@ -236,6 +253,8 @@ export default {
           this.cancel();
           // 刷新list列表
           this.reqGoodsListAction();
+          // 刷新总数
+          this.reqGoodsCountAction();
         } else {
           // 添加失败打印
           warningAlert(res.data.msg);
@@ -277,7 +296,6 @@ export default {
       // 发送请求
       reqGoodsEdit(data).then(res => {
         console.log(res)
-
         // 修改成功
         if (res.data.code == 200) {
           successAlert(res.data.msg);
@@ -298,7 +316,7 @@ export default {
     if (this.cateList.length == 0) {
       this.reqCateListAction();
     }
-    // 请求 sku 商品规格页面
+    // 请求 sku 商品规格页面的总数
     this.reqSkuListAction(true);
   }
 };

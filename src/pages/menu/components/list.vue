@@ -73,7 +73,7 @@ export default {
               // 弹框
               successAlert(res.data.msg);
               // 更新列表数据
-              this.reqListAction();
+              this.reqMenuListAction();
             } else {
               warningAlert(res.data.msg);
             }

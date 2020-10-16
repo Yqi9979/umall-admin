@@ -10,7 +10,7 @@ import manage from './modules/manage';
 import cate from './modules/cate';
 import sku from './modules/sku';
 import goods from './modules/goods';
-
+import member from './modules/member';
 
 export default new Vuex.Store({
     state,
@@ -23,7 +23,8 @@ export default new Vuex.Store({
         manage,
         cate,
         sku,
-        goods
+        goods,
+        member
     }
 })
 

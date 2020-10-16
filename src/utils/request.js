@@ -1,7 +1,9 @@
 import axios from 'axios';
 import qs from 'qs';
 import Vue from 'vue';
-
+import store from '../store';
+import { successAlter, warningAlert } from '../utils/alert';
+import router from '../router';
 // 开发环境下使用
 Vue.prototype.$imgPre="http://localhost:3000"
 let baseUrl = "/api";
@@ -10,11 +12,27 @@ let baseUrl = "/api";
 // Vue.prototype.$imgPre = ""
 // let baseUrl=""
 
+// 请求拦截
+axios.interceptors.request.use(req => {
+  console.log("---请求拦截---")
+  console.log(req);
+  if (req.url != baseUrl + '/api/userlogin') {
+    req.headers.authorization = store.state.userInfo.token;
+  }
+  return req;
+})
 // 响应拦截
 axios.interceptors.response.use(res => {
   console.group("======本次请求路径是：" + res.config.url)
   console.log(res)
   console.groupEnd()
+
+  // 当用户掉线
+  if (res.data.msg == '登录已过期或访问权限受限') {
+    warningAlert(res.data.msg)
+    router.push("/login")
+  }
+  
   return res
 })
 // ============================= menu 菜单管理==================
@@ -330,4 +348,33 @@ export const reqGoodsDelete = (id) => {
     data:qs.stringify({id})
   })
 }
+// ============================== member 会员管理=============
+// memberlist 会员列表
+export const reqMemberList = () => {
+  return axios({
+    url: baseUrl + "/api/memberlist",
+    method:"get"    
+  })
+}
+// memberinfo 会员信息(一条)
+export const reqMemberInfo = (uid) => {
+  return axios({
+    url: baseUrl + "/api/memberinfo",
+    method: "get",
+    params: {
+      uid:uid
+    }
+  })
+}
+// memberedit 会员修改
+export const reqMemberEdit = (data) => {
+  return axios({
+    url: baseUrl + "/api/memberedit",
+    method: "post",
+    data:qs.stringify(data)
+  })
+}
+
+
+
 

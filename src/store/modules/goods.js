@@ -5,7 +5,7 @@ const state = {
     // list列表数据
     goodsList: [],
     // 一页数量
-    goodsSize: 3,
+    goodsSize: 5,
     //总数
     goodsTotal: 0,
     //页码
