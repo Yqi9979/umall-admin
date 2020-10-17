@@ -374,7 +374,101 @@ export const reqMemberEdit = (data) => {
     data:qs.stringify(data)
   })
 }
-
-
+// ============================== banner 轮播图管理=============
+//  bannerlist 轮播图列表
+export const reqBannerList = () => {
+  return axios({
+    url: baseUrl + "/api/bannerlist",
+    method:"get"
+  })
+}
+// banneradd 轮播图添加
+export const reqBannerAdd = (form) => {
+  let data = new FormData()
+    for (let i in form) {
+        data.append(i, form[i])
+  }
+  return axios({
+    url: baseUrl + "/api/banneradd",
+    method: 'post',
+    data:data
+  })
+}
+// bannerinfo 轮播图获取(一条)
+export const reqBannerInfo = (id) => {
+  return axios({
+    url: baseUrl + '/api/bannerinfo',
+    method: 'get',
+    params: {
+      id:id
+    }
+  })
+}
+// banneredit 轮播图修改
+export const reqBannerEdit = (form) => {
+  let data = new FormData()
+    for (let i in form) {
+        data.append(i, form[i])
+  }
+  return axios({
+    url: baseUrl + '/api/banneredit',
+    method: "post",
+    data:data
+  })
+}
+// bannerdelete 轮播图删除
+export const reqBannerDelete = (id) => {
+  return axios({
+    url: baseUrl + '/api/bannerdelete',
+    method: 'post',
+    data: qs.stringify({
+      id:id
+    })
+  })
+}
+// ============================== seckill 限时秒杀管理=============
+// seckadd 限时秒杀添加
+export const reqSeckAdd = (data) => {
+  return axios({
+    url: baseUrl + '/api/seckadd',
+    method: 'post',
+    data:qs.stringify(data)
+  })
+}
+// secklist 限时秒杀列表
+export const reqSeckList = () => {
+  return axios({
+    url: baseUrl + '/api/secklist',
+    method:'get'
+  })
+}
+//  seckinfo 限时秒杀获取信息（一条）
+export const reqSeckInfo = (id) => {
+  return axios({
+    url: baseUrl + '/api/seckinfo',
+    method: 'get',
+    params: {
+      id:id
+    }
+  })
+}
+// seckedit 限时秒杀修改
+export const reqSeckEdit = (data) => {
+  return axios({
+    url: baseUrl + '/api/seckedit',
+    method: 'post',
+    data:qs.stringify(data)
+  })
+}
+// seckdelete 限时秒杀删除
+export const reqSeckDelete = (id) => {
+  return axios({
+    url: bserUrl + '/api/seckdelete',
+    method: 'post',
+    data: qs.stringify({
+      id:id
+    })
+  })
+}
 
 

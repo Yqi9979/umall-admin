@@ -15,8 +15,9 @@ const actions = {
     reqMemberListAction(context) {
         // 发送请求
         reqMemberList().then(res => {
-            console.log(res,'111')
-            context.commit("changeMemberList",res.data.list)
+            console.log(res, '111')
+            let list=res.data.list?res.data.list:[]
+            context.commit("changeMemberList",list)
         })
     }
 }

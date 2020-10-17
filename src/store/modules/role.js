@@ -15,8 +15,8 @@ const actions = {
     reqRoleListAction(context) {
         // 发送请求
         reqRoleList().then(res => {
-            let roleList = res.data.list ? res.data.list : []
-            context.commit("changeRoleList",roleList)
+            let list = res.data.list ? res.data.list : []
+            context.commit("changeRoleList",list)
         })
     }
 }

@@ -11,6 +11,8 @@ import cate from './modules/cate';
 import sku from './modules/sku';
 import goods from './modules/goods';
 import member from './modules/member';
+import banner from './modules/banner';
+import seck from './modules/seck';
 
 export default new Vuex.Store({
     state,
@@ -24,7 +26,9 @@ export default new Vuex.Store({
         cate,
         sku,
         goods,
-        member
+        member,
+        banner,
+        seck
     }
 })
 
