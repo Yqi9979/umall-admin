@@ -1,6 +1,6 @@
 import { reqSeckList } from '../../utils/request';
 const state = {
-    scekList:[]
+    seckList:[]
 }
 const mutations = {
     changeSeckList(state, arr) {

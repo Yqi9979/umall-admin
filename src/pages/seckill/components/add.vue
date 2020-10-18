@@ -1,8 +1,8 @@
 <template>
   <div class="add">
     <el-dialog :title="info.isAdd?'添加活动':'编辑活动'" :visible.sync="info.isshow" @closed="close">
-      <el-form ref="form" :model="form" label-width="80px">
-        <el-form-item label="活动名称">
+      <el-form ref="valiForm" :rules="rules" :model="form" label-width="80px">
+        <el-form-item label="活动名称" prop="title">
           <el-input v-model="form.title"></el-input>
         </el-form-item>
 
@@ -18,7 +18,7 @@
           ></el-date-picker>
         </el-form-item>
 
-        <el-form-item label="一级分类">
+        <el-form-item label="一级分类" prop="first_cateid">
           <el-select v-model="form.first_cateid" @change="changeFirst">
             <el-option label="请选择" value disabled></el-option>
             <el-option
@@ -30,7 +30,7 @@
           </el-select>
         </el-form-item>
 
-        <el-form-item label="二级分类">
+        <el-form-item label="二级分类" prop="second_cateid">
           <el-select v-model="form.second_cateid" @change="changeSecond">
             <el-option label="请选择" value disabled></el-option>
             <el-option
@@ -42,7 +42,7 @@
           </el-select>
         </el-form-item>
 
-        <el-form-item label="商品">
+        <el-form-item label="商品" prop="goodsid">
           <el-select v-model="form.goodsid">
             <el-option label="请选择" value disabled></el-option>
             <el-option
@@ -82,7 +82,7 @@ export default {
   components: {},
   data() {
     return {
-       pickerOptions: {
+      pickerOptions: {
         shortcuts: [{
           text: '最近一周',
           onClick (picker) {
@@ -118,6 +118,17 @@ export default {
         goodsid: "",
         status: 1
       },
+      rules:{
+        title: [{ required: true, message: '请输入活动名称', trigger: 'blur' }],
+        first_cateid: [
+          { required: true, message: '请选择一级分类', trigger: 'change' }
+        ],
+        second_cateid: [
+          { required: true, message: '请选择二级分类', trigger: 'change' }
+        ],
+        goodsid: [{ required: true, message: '请选择商品', trigger: 'change' }]
+        
+      },
       // 二级分类list
       secondCateList: [],
       // 三级分类list
@@ -143,7 +154,8 @@ export default {
     changeFirst() {
       //一级分类变了，二级分类的值置空
       this.form.second_cateid = "";
-      (this.form.goodsid = ""), this.getSecondList();
+      this.form.goodsid = "";
+      this.getSecondList();
     },
     // 获取二级分类数据
     getSecondList() {
@@ -153,7 +165,8 @@ export default {
     },
     // 二级分类变了，三级分类值置空
     changeSecond() {
-      (this.form.goodsid = ""), this.getThreeLit();
+      this.form.goodsid = "";
+      this.getThreeLit();
     },
     // 获取三级分类数据
     getThreeLit() {
@@ -177,7 +190,7 @@ export default {
     },
     // 重置数据
     reset() {
-      (this.form = {
+      this.form = {
         title: "",
         begintime: "",
         endtime: "",
@@ -185,29 +198,32 @@ export default {
         second_cateid: "",
         goodsid: "",
         status: 1
-      }),
-        (this.secondCateList = "");
+      },
+      this.secondCateList = "";
     },
 
     // 点击添加完成
     add() {
-      this.form.begintime = new Date(this.value1[0]).getTime() + ''
-      this.form.endtime = new Date(this.value1[1]).getTime() + ''
-      // 发送请求
-      reqSeckAdd(this.form).then(res => {
-        if ((res.data.code = 200)) {
-          // 添加成功打印
-          successAlert(res.data.msg);
-          // 清空输入框
-          this.reset();
-          // 弹框消失
-          this.cancel();
-          // 刷新list列表
-          this.reqSeckListAction();
-        } else {
-          // 添加失败打印
-          warningAlert(res.data.msg);
-        }
+      this.$refs.valiForm.validate(valid => {
+        if (!valid) return;
+        this.form.begintime = new Date(this.value1[0]).getTime() + ''
+        this.form.endtime = new Date(this.value1[1]).getTime() + ''
+        // 发送请求
+        reqSeckAdd(this.form).then(res => {
+          if (res.data.code = 200) {
+            // 添加成功打印
+            successAlert(res.data.msg);
+            // 清空输入框
+            this.reset();
+            // 弹框消失
+            this.cancel();
+            // 刷新list列表
+            this.reqSeckListAction();
+          } else {
+            // 添加失败打印
+            warningAlert(res.data.msg);
+          }
+        });
       });
     },
     // 点击编辑，获取一条商品数据
@@ -233,24 +249,27 @@ export default {
     },
     // 修改数据
     edit() {
-      console.log(this.form);
-      this.form.begintime = new Date(this.value1[0]).getTime() + ''
-      this.form.endtime = new Date(this.value1[1]).getTime() + ''
-      // 发送请求
-      reqSeckEdit( this.form).then(res => {
-        console.log(res);
-        // 修改成功
-        if (res.data.code == 200) {
-          successAlert(res.data.msg);
-          // 更新数据
-          this.reset();
-          // 关闭弹框
-          this.cancel();
-          // 更新列表数据
-          this.reqSeckListAction();
-        } else {
-          warningAlert(res.data.msg);
-        }
+      this.$refs.valiForm.validate(valid => {
+        if (!valid) return;
+        console.log(this.form);
+        this.form.begintime = new Date(this.value1[0]).getTime() + ''
+        this.form.endtime = new Date(this.value1[1]).getTime() + ''
+        // 发送请求
+        reqSeckEdit( this.form).then(res => {
+          console.log(res);
+          // 修改成功
+          if (res.data.code == 200) {
+            successAlert(res.data.msg);
+            // 更新数据
+            this.reset();
+            // 关闭弹框
+            this.cancel();
+            // 更新列表数据
+            this.reqSeckListAction();
+          } else {
+            warningAlert(res.data.msg);
+          }
+        });
       });
     }
   },

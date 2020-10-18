@@ -6,10 +6,9 @@
       @closed="close"
       @opened="opened"
     >
-      <el-form ref="form" :model="form" label-width="80px">
-        <el-form-item label="一级分类">
+      <el-form :rules="rules" ref="valiForm" :model="form" label-width="80px">
+        <el-form-item label="一级分类" placeholder="请选择" prop="first_cateid">
           <el-select v-model="form.first_cateid" @change="changeFirst">
-            <el-option label="请选择" value disabled></el-option>
             <el-option
               v-for="item in cateList"
               :key="item.id"
@@ -19,9 +18,8 @@
           </el-select>
         </el-form-item>
 
-        <el-form-item label="二级分类">
+        <el-form-item label="二级分类" placeholder="请选择" prop="second_cateid">
           <el-select v-model="form.second_cateid">
-            <el-option label="请选择" value="" disabled></el-option>
             <el-option
               v-for="item in secondCateList"
               :key="item.id"
@@ -31,20 +29,20 @@
           </el-select>
         </el-form-item>
 
-        <el-form-item label="商品名称">
+        <el-form-item label="商品名称" prop="goodsname">
           <el-input v-model="form.goodsname"></el-input>
         </el-form-item>
 
-        <el-form-item label="价格">
+        <el-form-item label="价格" prop="price">
           <el-input v-model="form.price"></el-input>
         </el-form-item>
 
-        <el-form-item label="市场价格">
+        <el-form-item label="市场价格" prop="market_price">
           <el-input v-model="form.market_price"></el-input>
         </el-form-item>
 
         <!-- 上传图片 start-->
-        <el-form-item label="图片">
+        <el-form-item label="图片" prop="img">
           <el-upload
             class="avatar-uploader"
             action="#"
@@ -57,9 +55,8 @@
         </el-form-item>
         <!-- 上传图片 end -->
 
-        <el-form-item label="商品规格">
+        <el-form-item label="商品规格" placeholder="请选择" prop="specsid">
           <el-select v-model="form.specsid" @change="changeSpecs">
-            <el-option label="请选择" value="" disabled></el-option>
             <el-option
               v-for="item in skuList"
               :key="item.id"
@@ -69,24 +66,18 @@
           </el-select>
         </el-form-item>
 
-        <el-form-item label="规格属性">
+        <el-form-item label="规格属性" placeholder="请选择" prop="specsattr">
           <el-select v-model="form.specsattr" multiple>
-            <el-option label="请选择" value="" disabled></el-option>
-            <el-option 
-              v-for="item in goodsAttrList" 
-              :key="item" 
-              :label="item" 
-              :value="item"
-            ></el-option>
+            <el-option v-for="item in goodsAttrList" :key="item" :label="item" :value="item"></el-option>
           </el-select>
         </el-form-item>
 
-        <el-form-item label="是否新品">
+        <el-form-item label="是否新品" prop="isnew">
           <el-radio v-model="form.isnew" :label="1">是</el-radio>
           <el-radio v-model="form.isnew" :label="2">否</el-radio>
         </el-form-item>
 
-        <el-form-item label="是否热卖">
+        <el-form-item label="是否热卖" prop="ishot">
           <el-radio v-model="form.ishot" :label="1">是</el-radio>
           <el-radio v-model="form.ishot" :label="2">否</el-radio>
         </el-form-item>
@@ -97,7 +88,7 @@
 
         <el-form-item label="商品描述">
           <!-- <textarea name id cols="30" rows="10"></textarea> -->
-          <div v-if="info.isshow" id="editor"></div>
+          <div v-if="info.isshow" id="editor" ></div>
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
@@ -122,6 +113,12 @@ export default {
   props: ["info"],
   components: {},
   data() {
+    var checkImage = (rule, value, cb) => {
+      if (this.imageUrl !== "") {
+        return cb();
+      }
+      cb(new Error("请上传图片"));
+    };
     return {
       imageUrl: "",
       form: {
@@ -141,7 +138,21 @@ export default {
       // 二级分类list
       secondCateList: [],
       // 商品属性 list
-      goodsAttrList: []
+      goodsAttrList: [],
+      rules:{
+        first_cateid:[
+          {required:true,message:"请选择一级分类",trigger:'change'}],
+        second_cateid:[
+          {required:true,message:"请选择二级分类",trigger:'change'}],
+        goodsname:[
+          {required:true,message:"请输入商品名称",trigger:'blur'}],
+        img:[
+          {validator:checkImage,trigger:'change'}],
+        specsid:[
+          {required:true,message:"请选择商品规格",trigger:'change'}],
+        specsattr:[
+          {required:true,message:"请选择规格属性",trigger:'change'}],
+      }
     };
   },
   computed: {
@@ -235,30 +246,34 @@ export default {
 
     // 点击添加完成
     add() {
-      // 将富文本的值赋给form
-      this.form.description = this.editor.txt.html();
-      // 将规格属性转为字符串，富文本双向数据绑定，使用展开运算法
-      let data = {
-        ...this.form,
-        specsattr: JSON.stringify(this.form.specsattr)
-      };
-      // 发送请求
-      reqGoodsAdd(data).then(res => {
-        if ((res.data.code = 200)) {
-          // 添加成功打印
-          successAlert(res.data.msg);
-          // 清空输入框
-          this.reset();
-          // 弹框消失
-          this.cancel();
-          // 刷新list列表
-          this.reqGoodsListAction();
-          // 刷新总数
-          this.reqGoodsCountAction();
-        } else {
-          // 添加失败打印
-          warningAlert(res.data.msg);
-        }
+      this.$refs.valiForm.validate(valid => {
+        if (!valid) return;
+        // 将富文本的值赋给form
+        this.form.description = this.editor.txt.html();
+        // 将规格属性转为字符串，富文本双向数据绑定，使用展开运算法
+        let data = {
+          ...this.form,
+          specsattr: JSON.stringify(this.form.specsattr)
+        };
+        // 发送请求
+        reqGoodsAdd(data).then(res => {
+          if ((res.data.code = 200)) {
+            // 添加成功打印
+            successAlert(res.data.msg);
+            // 清空输入框
+            this.reset();
+            // 弹框消失
+            this.cancel();
+            // 刷新list列表
+            this.reqGoodsListAction();
+            // 刷新总数
+            this.reqGoodsCountAction();
+            // 
+          } else {
+            // 添加失败打印
+            warningAlert(res.data.msg);
+          }
+        });
       });
     },
     // 点击编辑，获取一条商品数据
@@ -271,13 +286,12 @@ export default {
           this.form.id=id
           // 请求二级分类的list
           this.getSecondList();
+          // 获取商品属性的数组
+          this.getAttrsArr();
           // 商品属性转为[]数组
           this.form.specsattr = JSON.parse(this.form.specsattr);
           // 请求图片
           this.imageUrl = this.$imgPre + this.form.img;
-          // 获取商品属性的数组
-          this.getAttrsArr();
-
         } else {
           warningAlert(res.data.msg);
         }
@@ -285,29 +299,32 @@ export default {
     },
     // 修改数据
     edit() {
-      // 将富文本的值赋给form
-      this.form.description = this.editor.txt.html();
-      // 将规格属性转为字符串，使用展开运算法
-      let data = {
-        ...this.form,
-        specsattr: JSON.stringify(this.form.specsattr)
-      };
-      console.log(data)
-      // 发送请求
-      reqGoodsEdit(data).then(res => {
-        console.log(res)
-        // 修改成功
-        if (res.data.code == 200) {
-          successAlert(res.data.msg);
-          // 更新数据
-          this.reset();
-          // 关闭弹框
-          this.cancel();
-          // 更新列表数据
-          this.reqGoodsListAction();
-        } else {
-          warningAlert(res.data.msg);
-        }
+      this.$refs.valiForm.validate(valid => {
+        if (!valid) return;
+        // 将富文本的值赋给form
+        this.form.description = this.editor.txt.html();
+        // 将规格属性转为字符串，使用展开运算法
+        let data = {
+          ...this.form,
+          specsattr: JSON.stringify(this.form.specsattr)
+        };
+        console.log(data)
+        // 发送请求
+        reqGoodsEdit(data).then(res => {
+          console.log(res)
+          // 修改成功
+          if (res.data.code == 200) {
+            successAlert(res.data.msg);
+            // 更新数据
+            this.reset();
+            // 关闭弹框
+            this.cancel();
+            // 更新列表数据
+            this.reqGoodsListAction();
+          } else {
+            warningAlert(res.data.msg);
+          }
+        });
       });
     }
   },

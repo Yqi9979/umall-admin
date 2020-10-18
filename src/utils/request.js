@@ -463,7 +463,7 @@ export const reqSeckEdit = (data) => {
 // seckdelete 限时秒杀删除
 export const reqSeckDelete = (id) => {
   return axios({
-    url: bserUrl + '/api/seckdelete',
+    url: baseUrl + '/api/seckdelete',
     method: 'post',
     data: qs.stringify({
       id:id

@@ -18,6 +18,7 @@
       </el-table-column>
       <el-table-column prop="status" label="操作">
         <template slot-scope="scope">
+      
           <el-button type="primary" @click="edit(scope.row.uid)">编辑</el-button>
           <el-button type="danger" @click="del(scope.row.uid)">删除</el-button>
         </template>
@@ -52,8 +53,8 @@ export default {
     }),
     
     //编辑
-    edit(id) {
-      this.$emit("edit", id);
+    edit(uid) {
+      this.$emit("edit", uid);
     },
     // 删除
     del(uid) {

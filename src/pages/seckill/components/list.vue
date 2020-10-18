@@ -7,10 +7,10 @@
       border
       :tree-props="{children: 'children'}"
     >
-      <el-table-column prop="title" label="活动名称"  width="100px"></el-table-column>
+      <el-table-column prop="title" label="活动名称" width="100px"></el-table-column>
       <el-table-column label="状态" width="200px">
         <template slot-scope="scope">
-          <el-button v-if="scope.row.status" type="primary" disabled>启用</el-button>
+          <el-button v-if="scope.row.status==1" type="primary" disabled>启用</el-button>
           <el-button v-else type="info" disabled>禁用</el-button>
         </template>
       </el-table-column>
@@ -49,7 +49,7 @@ export default {
       this.$emit("edit", id);
     },
     // 删除
-    del(id) {
+    del(id) { 
       this.$confirm("你确定要删除吗？", "提示", {
         confirmButtonText: "确定",
         cancelButtonText: "取消",
@@ -59,6 +59,7 @@ export default {
           // 确定 请求删除api
           reqSeckDelete(id).then(res => {
             // 删除成功
+            console.log(111)
             if (res.data.code == 200) {
               // 弹框
               successAlert(res.data.msg);

@@ -1,8 +1,8 @@
 <template>
   <div>
     <el-dialog :title="info.isAdd ? '添加商品规格' : '编辑商品规格'" :visible.sync="info.isshow" @close="close">
-      <el-form ref="form" :model="form"  label-width="80px">
-        <el-form-item label="规格名称">
+      <el-form :rules="rules" ref="valiForm" :model="form"  label-width="80px">
+        <el-form-item label="规格名称" prop="specsname">
             <el-input v-model="form.specsname"></el-input>
         </el-form-item>
 
@@ -48,6 +48,9 @@ export default {
         specsname: "",
         attrs: "",
         status: 1
+      },
+      rules:{
+        specsname:[{required:true,message:"请输入规格名称",trigger:'blur'}]
       }
     };
   },
@@ -89,21 +92,24 @@ export default {
     },
     // 添加
     addSku() {
-      this.form.attrs = JSON.stringify(this.attrArr.map((item) => item.value));
-      reqSkuAdd(this.form).then(res => {
-        if (res.data.code == 200) {
-          successAlert(res.data.msg);
-          // 重置
-          this.reset();
-          // 弹框取消
-          this.cancel();
-          // 重新刷新列表
-          this.reqSkuListAction();
-          // 重新获取总数
-          this.reqSkuCountAction();
-        } else {
-          warningAlert(res.data.msg);
-        }
+      this.$refs.valiForm.validate(valid => {
+        if (!valid) return;
+        this.form.attrs = JSON.stringify(this.attrArr.map((item) => item.value));
+        reqSkuAdd(this.form).then(res => {
+          if (res.data.code == 200) {
+            successAlert(res.data.msg);
+            // 重置
+            this.reset();
+            // 弹框取消
+            this.cancel();
+            // 重新刷新列表
+            this.reqSkuListAction();
+            // 重新获取总数
+            this.reqSkuCountAction();
+          } else {
+            warningAlert(res.data.msg);
+          }
+        });
       });
     },
     // 编辑
@@ -124,16 +130,19 @@ export default {
     },
     // 修改
     update() {
-      this.form.attrs=JSON.stringify(this.attrArr.map((item)=>item.value))
-      reqSkuEdit(this.form).then(res => {
-        if (res.data.code == 200) {
-          successAlert(res.data.msg);
-          this.reset();
-          this.cancel();
-          this.reqSkuListAction();
-        } else {
-          warningAlert(res.data.msg);
-        }
+      this.$refs.valiForm.validate(valid => {
+        if (!valid) return;
+        this.form.attrs=JSON.stringify(this.attrArr.map((item)=>item.value))
+        reqSkuEdit(this.form).then(res => {
+          if (res.data.code == 200) {
+            successAlert(res.data.msg);
+            this.reset();
+            this.cancel();
+            this.reqSkuListAction();
+          } else {
+            warningAlert(res.data.msg);
+          }
+        });
       });
     }
   },

@@ -1,11 +1,11 @@
 <template>
   <div>
     <el-dialog :title="info.isAdd?'添加菜单':'编辑菜单'" :visible.sync="info.isshow" @closed="close">
-      <el-form ref="form" :model="form" label-width="80px">
-        <el-form-item label="菜单名称">
+      <el-form :rules="rules" ref="valiForm" :model="form" label-width="80px">
+        <el-form-item label="菜单名称" prop='title'>
           <el-input v-model="form.title"></el-input>
         </el-form-item>
-        <el-form-item label="上级菜单">
+        <el-form-item label="上级菜单" prop='pid'>
           <el-select v-model="form.pid"  @change="changePid" placeholder="请选择上级菜单">
             <el-option label="顶级菜单" :value="0"></el-option>
             <el-option v-for="item in menuList" :key="item.id" :label="item.title" :value="item.id"></el-option>
@@ -15,14 +15,14 @@
           <el-radio v-model="form.type" :label="1" disabled>目录</el-radio>
           <el-radio v-model="form.type" :label="2" disabled>菜单</el-radio>
         </el-form-item>
-        <el-form-item label="菜单图标" v-if="form.type==1">
+        <el-form-item label="菜单图标" v-if="form.type==1" prop='icon'>
           <el-select v-model="form.icon" placeholder="请选择图标">
             <el-option v-for="item in icons" :key="item" :value="item">
               <i :class="item"></i>
             </el-option>
           </el-select>
         </el-form-item>
-        <el-form-item label="菜单地址" v-else>
+        <el-form-item label="菜单地址" v-else prop='url'>
           <el-select v-model="form.url" placeholder="请选择地址">
             <el-option
               v-for="item in indexRouters"
@@ -78,6 +78,12 @@ export default {
         type: 1,
         url: "",
         status: 1
+      },
+      rules: {
+        title: [{ required: true, message: "请输菜单名称", trigger: "blur" }],
+        pid:[{required:true,message:'请输入上级菜单',trigger:'blur'}],
+        icon:[{required:true,message:'请输入图标',trigger:'change'}],
+        url:[{required:true,message:'请输入地址',trigger:'change'}]
       }
     };
   },
@@ -123,21 +129,24 @@ export default {
     },
     // 添加
     add() {
-      // console.log(this.form)
-      reqMenuAdd(this.form).then(res => {
-        if ((res.data.code = 200)) {
-          // 添加成功打印
-          successAlert(res.data.msg);
+      this.$refs.valiForm.validate(valid => {
+        if (!valid) return;
+        // console.log(this.form)
+        reqMenuAdd(this.form).then(res => {
+          if ((res.data.code = 200)) {
+            // 添加成功打印
+            successAlert(res.data.msg);
 
-          // 清空输入框
-          this.reset();
-          // 弹框消失
-          this.cancel();
-          this.reqMenuListAction();
-        } else {
-          // 添加失败打印
-          warningAlert(res.data.msg);
-        }
+            // 清空输入框
+            this.reset();
+            // 弹框消失
+            this.cancel();
+            this.reqMenuListAction();
+          } else {
+            // 添加失败打印
+            warningAlert(res.data.msg);
+          }
+        });
       });
     },
     
@@ -155,20 +164,23 @@ export default {
     },
     // 修改数据
     update() {
-      // 发送请求
-      reqMenuDeit(this.form).then(res => {
-        // 修改成功
-        if (res.data.code == 200) {
-          successAlert(res.data.msg);
-          // 更新数据
-          this.reset();
-          // 关闭弹框
-          this.cancel();
-          // 更新列表数据
-          this.reqMenuListAction();
-        } else {
-          warningAlert(res.data.msg);
-        }
+      this.$refs.valiForm.validate(valid => {
+        if (!valid) return;
+        // 发送请求
+        reqMenuDeit(this.form).then(res => {
+          // 修改成功
+          if (res.data.code == 200) {
+            successAlert(res.data.msg);
+            // 更新数据
+            this.reset();
+            // 关闭弹框
+            this.cancel();
+            // 更新列表数据
+            this.reqMenuListAction();
+          } else {
+            warningAlert(res.data.msg);
+          }
+        });
       });
     }
   },

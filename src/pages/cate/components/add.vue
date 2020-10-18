@@ -5,8 +5,8 @@
     :visible.sync="info.isshow" 
     @closed="close"
     >
-      <el-form ref="form" :model="form" label-width="80px">
-        <el-form-item label="上级分类"  >
+      <el-form :rules="rules" ref="valiForm" :model="form" label-width="80px">
+        <el-form-item label="上级分类" prop="pid">
           <el-select v-model="form.pid" placeholder="请选择">
             <el-option label="顶级分类" :value="0"></el-option>
             <el-option 
@@ -18,7 +18,7 @@
           </el-select>
         </el-form-item>
 
-         <el-form-item label="分类名称">
+         <el-form-item label="分类名称" prop="catename">
           <el-input v-model="form.catename"></el-input>
         </el-form-item>
 
@@ -64,6 +64,11 @@ export default {
         catename: "",
         img:null,
         status: 1
+      },
+      rules:{
+        pid:[{required:true,messsage:'请选择上级分类',trigger:'blur'}],
+        catename:[{required:true,message:'请输入分类名称',trigger:'blur'}],
+       
       }
     };
   },
@@ -80,6 +85,19 @@ export default {
     getFile(e){
         console.log(e)
         let file = e.raw
+        // 1.大小不超过2M 1M=1024KB 1KB=1024B
+        if (file.size > 2 * 1024 * 1024) {
+          this.$message.error("文件不能超过2M");
+          return;
+        }
+
+        // 2.是图片
+        let imgExtArr = [".jpg", ".png", ".jpeg", ".gif"];
+        let extname = file.name.slice(file.name.lastIndexOf(".")); // '.jpg'
+        if (!imgExtArr.some(item => item === extname)) {
+          this.$message.error("文件格式不正确");
+          return;
+        }
         // URL.createObjectURL() 可以通过文件生成一个地址
         this.imageUrl = URL.createObjectURL(file)
         this.form.img = file
@@ -110,20 +128,23 @@ export default {
     // 添加
     add() {
       console.log(this.form)
-      reqCateAdd(this.form).then(res => {
-        if ((res.data.code = 200)) {
-          // 添加成功打印
-          successAlert(res.data.msg);
-          // 清空输入框
-          this.reset();
-          // 弹框消失
-          this.cancel();
-          // 刷新list列表
-          this.reqCateListAction();
-        } else {
-          // 添加失败打印
-          warningAlert(res.data.msg);
-        }
+      this.$refs.valiForm.validate(valid => {
+        if (!valid) return;
+        reqCateAdd(this.form).then(res => {
+          if ((res.data.code = 200)) {
+            // 添加成功打印
+            successAlert(res.data.msg);
+            // 清空输入框
+            this.reset();
+            // 弹框消失
+            this.cancel();
+            // 刷新list列表
+            this.reqCateListAction();
+          } else {
+            // 添加失败打印
+            warningAlert(res.data.msg);
+          }
+        });
       });
     },
 
@@ -144,20 +165,23 @@ export default {
     },
     // 修改数据
     update() {
-      // 发送请求
-      reqCateDeit(this.form).then(res => {
-        // 修改成功
-        if (res.data.code == 200) {
-          successAlert(res.data.msg);
-          // 更新数据
-          this.reset();
-          // 关闭弹框
-          this.cancel();
-          // 更新列表数据
-          this.reqCateListAction();
-        } else {
-          warningAlert(res.data.msg);
-        }
+      this.$refs.valiForm.validate(valid => {
+        if (!valid) return;
+        // 发送请求
+        reqCateDeit(this.form).then(res => {
+          // 修改成功
+          if (res.data.code == 200) {
+            successAlert(res.data.msg);
+            // 更新数据
+            this.reset();
+            // 关闭弹框
+            this.cancel();
+            // 更新列表数据
+            this.reqCateListAction();
+          } else {
+            warningAlert(res.data.msg);
+          }
+        });
       });
     }
   },

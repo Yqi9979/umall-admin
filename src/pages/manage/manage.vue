@@ -35,11 +35,13 @@ export default {
       this.info.isshow=true,
       this.info.isAdd=true
     },
-    edit(id){
+    edit(uid){
       this.info.isshow=true;
       this.info.isAdd=false;
+      console.log(uid)
+
       //让add组件发起获取详情的请求
-      this.$refs.add.loog(id)
+      this.$refs.add.loog(uid)
     }
   },
   mounted() {

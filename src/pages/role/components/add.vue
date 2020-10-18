@@ -1,8 +1,8 @@
 <template>
   <div>
     <el-dialog :title="info.isAdd?'角色添加':'角色编辑'" :visible.sync="info.isshow" @close="close">
-      <el-form :model="form">
-        <el-form-item label="角色名称" :label-width="formLabelWidth">
+      <el-form :model="form" ref="valiForm" :rules="rules">
+        <el-form-item label="角色名称" :label-width="formLabelWidth" prop="rolename">
           <el-input v-model="form.rolename" autocomplete="off"></el-input>
         </el-form-item>
         <el-form-item label="角色权限" :label-width="formLabelWidth">
@@ -36,6 +36,9 @@ export default {
         rolename: "",
         menus: "[]",
         status: 1
+      },
+      rules:{
+        rolename:[{required:true,message:'请输入角色名称',trigger:'blur'}]
       },
       formLabelWidth: "120px"
     };
@@ -72,20 +75,23 @@ export default {
     },
     // 确认添加角色
     addRole() {
-      this.form.menus = JSON.stringify(this.$refs.tree.getCheckedKeys());
-      reqRoleAdd(this.form).then(res => {
-        if (res.data.code == 200) {
-          successAlert(res.data.msg);
-          // 清空输入框
-          this.reset();
-          //关闭弹框
-          this.cancel();
-          // 刷新角色列表数据
-          this.reqRoleListAction();
-        } else {
-          warningAlert(res.data.msg);
-        }
-      });
+       this.$refs.valiForm.validate(valid => {
+        if (!valid) return;
+        this.form.menus = JSON.stringify(this.$refs.tree.getCheckedKeys());
+        reqRoleAdd(this.form).then(res => {
+          if (res.data.code == 200) {
+            successAlert(res.data.msg);
+            // 清空输入框
+            this.reset();
+            //关闭弹框
+            this.cancel();
+            // 刷新角色列表数据
+            this.reqRoleListAction();
+          } else {
+            warningAlert(res.data.msg);
+          }
+        });
+       });
     },
     // 获取一条菜单数据请求
     loog(id) {
@@ -103,20 +109,23 @@ export default {
     },
     // 点击修改，发送请求
     updsate() {
-      this.form.menus = JSON.stringify(this.$refs.tree.getCheckedKeys());
-      console.log(this.form);
-      reqRoleEdit(this.form).then(res => {
-        if (res.data.code == 200) {
-          successAlert(res.data.msg);
-          // 清空输入框
-          this.reset();
-          //关闭弹框
-          this.cancel();
-          // 刷新角色列表数据
-          this.reqRoleListAction();
-        } else {
-          warningAlert(res.data.msg);
-        }
+       this.$refs.valiForm.validate(valid => {
+        if (!valid) return;
+        this.form.menus = JSON.stringify(this.$refs.tree.getCheckedKeys());
+        console.log(this.form);
+        reqRoleEdit(this.form).then(res => {
+          if (res.data.code == 200) {
+            successAlert(res.data.msg);
+            // 清空输入框
+            this.reset();
+            //关闭弹框
+            this.cancel();
+            // 刷新角色列表数据
+            this.reqRoleListAction();
+          } else {
+            warningAlert(res.data.msg);
+          }
+        });
       });
     }
   },
