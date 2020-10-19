@@ -6,7 +6,7 @@
     @closed="close"
     >
       <el-form :rules="rules" ref="valiForm" :model="form" label-width="80px">
-        <el-form-item label="上级分类" prop="pid">
+        <el-form-item label="上级分类" prop="catename">
           <el-select v-model="form.pid" placeholder="请选择">
             <el-option label="顶级分类" :value="0"></el-option>
             <el-option 
@@ -66,7 +66,7 @@ export default {
         status: 1
       },
       rules:{
-        pid:[{required:true,messsage:'请选择上级分类',trigger:'blur'}],
+        catename:[{required:true,messsage:'请选择上级分类',trigger:'blur'}],
         catename:[{required:true,message:'请输入分类名称',trigger:'blur'}],
        
       }

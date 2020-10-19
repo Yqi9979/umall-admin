@@ -2,9 +2,9 @@
   <div>
     <el-dialog :title="info.isAdd ? '添加管理员' : '编辑管理员'" :visible.sync="info.isshow" @close="close">
       <el-form :model="form" :rules="rules" ref="valiForm">
-        <el-form-item label="所属角色" prop='roleid'>
+        <el-form-item label="所属角色" prop="roleid">
           <el-select v-model="form.roleid" placeholder="请选择上级菜单">
-            <el-option label="请选择" disabled value=""></el-option>
+            <el-option label="请选择" disabled value></el-option>
             <el-option
               v-for="item in roleList"
               :key="item.id"
@@ -13,7 +13,7 @@
             ></el-option>
           </el-select>
         </el-form-item>
-        <el-form-item label="用户名" prop='username' >
+        <el-form-item label="用户名" prop="username">
           <el-input v-model="form.username"></el-input>
         </el-form-item>
         <el-form-item label="密码">
@@ -38,8 +38,7 @@ import { successAlert, warningAlert } from "../../../utils/alert";
 
 export default {
   props: ["info"],
-  components: {
-  },
+  components: {},
   data() {
     return {
       form: {
@@ -48,9 +47,11 @@ export default {
         password: "",
         status: 1
       },
-      rules:{
-        roleid:[{required:true,message:"请选择所属角色",trigger:"blur"}],
-        username:[{required:true,message:"请输入用户名",trigger:"blur"}],
+      rules: {
+        roleid: [
+          { required: true, message: "请选择所属角色", trigger: "blur" }
+        ],
+        username: [{ required: true, message: "请输入用户名", trigger: "blur" }]
       }
     };
   },
@@ -63,7 +64,7 @@ export default {
     ...mapActions({
       reqManageListAction: "manage/reqManageListAction",
       reqRoleListAction: "role/reqRoleListAction",
-      reqManageCountAction:"manage/reqManageCountAction",
+      reqManageCountAction: "manage/reqManageCountAction"
     }),
     close() {
       if (!this.info.isAdd) {
@@ -96,16 +97,15 @@ export default {
             this.reqManageListAction();
             // 重新获取总数
             this.reqManageCountAction();
-            } else {
-              warningAlert(res.data.msg);
-            }
-          });
+          } else {
+            warningAlert(res.data.msg);
+          }
         });
-      }
+      });
     },
     // 编辑,获取发送一条详情请求
-    loog(uid) {
-      console.log(uid)
+    look(uid) {
+      console.log(uid);
       reqUserInfo(uid).then(res => {
         if (res.data.code == 200) {
           successAlert(res.data.msg);
@@ -118,24 +118,27 @@ export default {
     },
     // 确定编辑，修改
     update() {
-      console.log(this.form)
-      reqUserEdit(this.form).then(res => {
-        if (res.data.code == 200) {
-          successAlert(res.data.msg);
-          this.cancel();
-          this.reqManageListAction();
-        } else {
-          warningAlert(res.data.msg);
-        }
+      console.log(this.form);
+      this.$refs.valiForm.validate(valid => {
+        if (!valid) return;
+        reqUserEdit(this.form).then(res => {
+          if (res.data.code == 200) {
+            successAlert(res.data.msg);
+            this.cancel();
+            this.reqManageListAction();
+          } else {
+            warningAlert(res.data.msg);
+          }
+        });
       });
-    },
-
+    }
+  },
   mounted() {
     if (this.roleList.length == 0) {
       this.reqRoleListAction();
     }
   }
-}
+};
 </script>
 <style scoped>
 </style>
